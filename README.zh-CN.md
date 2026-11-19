@@ -28,7 +28,7 @@
 - **老板模式** - 一键隐藏所有金额（气泡、通知、菜单栏都会打码）
 - **菜单栏 / 托盘** - macOS 菜单栏直接显示今日金额；Windows 托盘悬停显示
 - **自动更新** - 启动后在后台检查 GitHub Releases，下载好了才提醒；更新包带签名校验
-- **小巧** - 基于 Tauri 2，macOS 安装包不到 7 MB
+- **小巧** - 基于 Tauri 2，Windows 安装包约 4 MB，macOS 约 11 MB（Apple 芯片和 Intel 二合一）
 - **跨平台** - macOS（Apple 芯片和 Intel）和 Windows 10/11
 
 ## 截图

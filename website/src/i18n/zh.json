@@ -20,7 +20,7 @@
   "hero.fine": "macOS 12+（Apple 芯片和 Intel，已签名公证）· Windows 10/11 x64 · 免费、无需账号、数据只存在本机",
   "hero.shotAlt": "五个薪水小猫角色在桌面上，各自带着对话气泡和今日金额",
   "facts.label": "一览",
-  "facts.size": "< 7 MB",
+  "facts.size": "4–11 MB",
   "facts.sizeSub": "基于 Tauri 2，不打包浏览器",
   "facts.chars": "5 个角色",
   "facts.charsSub": "每人 9 个动作和专属台词",

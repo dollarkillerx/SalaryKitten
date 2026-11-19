@@ -28,7 +28,7 @@
 - **Boss mode** - Hide every amount (bubbles, notifications, menu bar) with one click
 - **Menu bar / tray** - Today's earnings in the macOS menu bar; tray tooltip on Windows
 - **Auto-update** - Checks GitHub Releases in the background after launch and tells you when an update is ready; updates are signed
-- **Small** - Built with Tauri 2: the macOS installer is under 7 MB
+- **Small** - Built with Tauri 2: about 4 MB on Windows and 11 MB on macOS (one app for Apple silicon and Intel)
 - **Cross-platform** - macOS (Apple silicon and Intel) and Windows 10/11
 
 ## Screenshots

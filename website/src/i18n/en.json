@@ -20,7 +20,7 @@
   "hero.fine": "macOS 12+ (Apple silicon & Intel, signed and notarized) · Windows 10/11 x64 · free, no account, data stays on your computer",
   "hero.shotAlt": "Five SalaryKitten characters on the desktop, each with a speech bubble and today's earnings",
   "facts.label": "At a glance",
-  "facts.size": "< 7 MB",
+  "facts.size": "4–11 MB",
   "facts.sizeSub": "Tauri 2, no bundled browser",
   "facts.chars": "5 characters",
   "facts.charsSub": "9 poses and her own lines each",
