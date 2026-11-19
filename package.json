@@ -7,7 +7,7 @@
     "dev": "tauri dev",
     "build": "tauri build",
     "icon": "tauri icon assets/icon-source.png",
-    "test": "node --test test/"
+    "test": "node --test"
   },
   "license": "MIT",
   "devDependencies": {
