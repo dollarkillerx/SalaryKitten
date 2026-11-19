@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>薪水小猫 · 设置</title>
+  <link rel="stylesheet" href="settings.css" />
+</head>
+<body>
+  <header>
+    <div class="avatar" id="avatar"></div>
+    <div>
+      <h1 id="title">薪水小猫</h1>
+      <p id="subtitle">设置好之后，桌宠会实时帮你数钱钱~</p>
+    </div>
+  </header>
+
+  <form id="form" autocomplete="off">
+    <section>
+      <h2>🎀 角色</h2>
+      <div class="chars" id="chars"></div>
+    </section>
+
+    <section>
+      <h2>💰 薪水</h2>
+      <label class="field">
+        <span>月薪</span>
+        <div class="input-wrap"><em id="cur-prefix">¥</em><input type="number" name="monthlySalary" min="0" step="100" required /></div>
+      </label>
+      <label class="field">
+        <span>每月计薪天数</span>
+        <input type="number" name="payDaysPerMonth" min="1" max="31" step="0.01" />
+        <small>国内法定 21.75 天；也可以填实际工作天数</small>
+      </label>
+      <div class="grid2">
+        <label class="field"><span>货币符号</span><input type="text" name="currency" maxlength="3" /></label>
+        <label class="field">
+          <span>小数位</span>
+          <select name="decimals"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+        </label>
+      </div>
+    </section>
+
+    <section>
+      <h2>⏰ 工作时间</h2>
+      <div class="grid2">
+        <label class="field"><span>上班</span><input type="time" name="workStart" required /></label>
+        <label class="field"><span>下班</span><input type="time" name="workEnd" required /></label>
+      </div>
+      <div class="field">
+        <span>工作日</span>
+        <div class="days" id="days"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>🍚 午休</h2>
+      <label class="switch"><input type="checkbox" name="lunchEnabled" /><i></i>有午休（午休不计薪）</label>
+      <div class="grid2" id="lunch-fields">
+        <label class="field"><span>开始</span><input type="time" name="lunchStart" /></label>
+        <label class="field"><span>结束</span><input type="time" name="lunchEnd" /></label>
+      </div>
+      <label class="field">
+        <span>提前提醒（分钟）</span>
+        <input type="number" name="lunchReminderMin" min="0" max="60" step="1" />
+        <small>填 0 表示不提前提醒</small>
+      </label>
+    </section>
+
+    <section>
+      <h2>🎯 今日目标</h2>
+      <label class="field">
+        <span>赚到多少时提醒我</span>
+        <div class="input-wrap"><em id="cur-prefix2">¥</em><input type="number" name="goal" min="0" step="1" /></div>
+        <small>填 0 表示不设目标</small>
+      </label>
+    </section>
+
+    <section>
+      <h2>⚙️ 其他</h2>
+      <label class="switch"><input type="checkbox" name="notify" /><i></i>系统通知（上下班、午休、达成目标）</label>
+      <label class="switch"><input type="checkbox" name="trayTitle" /><i></i>在菜单栏显示金额（仅 macOS）</label>
+      <label class="switch"><input type="checkbox" name="autostart" /><i></i>开机自动启动</label>
+    </section>
+
+    <section id="updates">
+      <h2>🔄 更新</h2>
+      <div class="update-row">
+        <div class="update-info">
+          <b id="u-current">当前版本</b>
+          <small id="u-status"></small>
+          <div class="bar hidden" id="u-bar-wrap"><i id="u-bar"></i></div>
+        </div>
+        <button type="button" id="u-btn">检查更新</button>
+      </div>
+      <label class="switch"><input type="checkbox" name="autoUpdate" /><i></i>启动后自动检查更新（下载好了才提醒）</label>
+    </section>
+
+    <section class="preview">
+      <h2>📊 预览</h2>
+      <div class="stats">
+        <div><small>日薪</small><b id="p-day">-</b></div>
+        <div><small>时薪</small><b id="p-hour">-</b></div>
+        <div><small>每秒</small><b id="p-sec">-</b></div>
+      </div>
+      <div class="try">
+        <small>试试提醒效果：</small>
+        <button type="button" data-preview="start">上班问候</button>
+        <button type="button" data-preview="lunchSoon">午休提醒</button>
+        <button type="button" data-preview="lunch">午休开始</button>
+        <button type="button" data-preview="lunchEnd">午休结束</button>
+        <button type="button" data-preview="off">下班</button>
+        <button type="button" data-preview="goal">达成目标</button>
+      </div>
+    </section>
+
+    <section id="about">
+      <h2>ℹ️ 关于</h2>
+      <div class="about-head">
+        <img src="assets/logo.png" alt="" />
+        <div>
+          <b>薪水小猫 SalaryKitten <span id="about-version"></span></b>
+          <small>一秒一秒帮你数工资的 Q 版桌宠 · 开源免费</small>
+        </div>
+      </div>
+      <div class="about-links">
+        <a href="https://github.com/dollarkillerx/SalaryKitten" data-ext>⭐ GitHub 源码</a>
+        <a href="https://salarykitten.pages.dev/zh/" data-ext>🌐 官网</a>
+        <a href="https://github.com/dollarkillerx/SalaryKitten/issues" data-ext>🐛 反馈问题</a>
+        <a href="https://github.com/dollarkillerx/SalaryKitten/releases" data-ext>📦 更新日志</a>
+      </div>
+      <dl class="about-meta">
+        <dt>开源许可</dt><dd><a href="https://github.com/dollarkillerx/SalaryKitten/blob/main/LICENSE" data-ext>MIT License</a> · © 2026 SalaryKitten contributors</dd>
+        <dt>技术栈</dt><dd><a href="https://tauri.app" data-ext>Tauri 2</a>（MIT / Apache-2.0）及其 updater、notification、autostart、single-instance、opener 插件</dd>
+        <dt>角色</dt><dd>均为二创同人 Q 版形象，由 Codex 生成。「蓝色大肥鱼」为开放授权角色；Claude娘、GPT娘为同人拟人形象。</dd>
+        <dt>声明</dt><dd>本项目与 Anthropic、OpenAI、DeepSeek 无任何关系，「Claude」「GPT」为其各自所有者的商标。</dd>
+      </dl>
+    </section>
+
+    <div id="errors" class="errors hidden"></div>
+    <footer>
+      <button type="button" id="reset" class="ghost">恢复默认</button>
+      <button type="submit" class="primary">保存</button>
+    </footer>
+  </form>
+  <div id="toast" class="toast hidden">已保存，欧鲸鲸~</div>
+
+  <script src="shared/salary.js"></script>
+  <script src="shared/kitten.js"></script>
+  <script src="shared/store.js"></script>
+  <script src="shared/characters.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>

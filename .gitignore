@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.DS_Store
+src-tauri/target/
+src-tauri/gen/
+design/codex-run.log
+design/green-screen/
+.work/
+website/dist/
+.wrangler/
+website/.wrangler/
+design/refs/

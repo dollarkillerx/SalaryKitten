@@ -1,0 +1,47 @@
+name: Build
+
+# Tests on every push; the Windows installer on v* tags or by hand.
+# The macOS build is signed and notarized locally with scripts/release-macos.sh.
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  windows:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+      - run: npm ci
+      # The updater signing key never leaves the release machine: CI builds the installer only, and
+      # scripts/publish-release.sh signs the downloaded setup.exe locally (the NSIS installer is the update package).
+      - name: Build NSIS installer
+        run: npx tauri build --bundles nsis --config src-tauri/tauri.ci.conf.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SalaryKitten-windows
+          path: src-tauri/target/release/bundle/nsis/*-setup.exe
+          if-no-files-found: error

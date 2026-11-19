@@ -1,0 +1,69 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "SalaryKitten",
+  "version": "0.1.0",
+  "identifier": "com.salarykitten.desktop",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "label": "pet",
+        "title": "薪水小猫",
+        "url": "pet.html",
+        "width": 260,
+        "height": 440,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visibleOnAllWorkspaces": true,
+        "focus": false,
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Productivity",
+    "shortDescription": "薪水小猫",
+    "longDescription": "实时显示今天赚了多少钱的桌面宠物，上下班、午休、达成目标都会提醒你。",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      }
+    },
+    "createUpdaterArtifacts": true,
+    "macOS": {
+      "minimumSystemVersion": "12.0"
+    },
+    "copyright": "MIT License · SalaryKitten contributors"
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEVBRjUwRUNFODUxOTkwMjkKUldRcGtCbUZ6ZzcxNm5zNG9INTFiT2Z6YnRzNUNsNW9FN0FLNWRkdWlGcTBtUzR3SmorMDRVWjMK",
+      "endpoints": [
+        "https://github.com/dollarkillerx/SalaryKitten/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}

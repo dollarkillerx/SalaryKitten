@@ -1,0 +1,193 @@
+:root {
+  --navy: #1b2c66;
+  --blue: #2b4fa8;
+  --sky: #6fa8ff;
+  --ice: #eaf2ff;
+  --gold: #ffd45c;
+  --gold-dark: #e0a21b;
+  --pink: #ff7aa8;
+  --font: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--font);
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+/* 窗口 260×440：角色和计数器贴底，上方留给气泡/详情卡片 */
+#stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- 对话气泡 ---------- */
+#bubble {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 252px;
+  padding: 9px 13px;
+  background: #fff;
+  color: var(--navy);
+  border: 3px solid var(--navy);
+  border-radius: 18px;
+  box-shadow: 0 0 0 3px #fff, 0 4px 10px rgba(27, 44, 102, 0.25);
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: center;
+  transform-origin: 50% 100%;
+  transition: opacity 0.2s, transform 0.25s cubic-bezier(.3, 1.6, .5, 1);
+  z-index: 5;
+}
+#bubble::after, #bubble::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  border-style: solid;
+  transform: translateX(-50%);
+}
+#bubble::before { bottom: -15px; border-width: 13px 10px 0; border-color: var(--navy) transparent transparent; }
+#bubble::after  { bottom: -9px;  border-width: 9px 7px 0;   border-color: #fff transparent transparent; }
+#bubble.hidden { opacity: 0; transform: scale(0.6); pointer-events: none; }
+#bubble.big { font-size: 15px; background: #fffbe8; }
+
+/* ---------- 详情卡片 ---------- */
+#details {
+  position: absolute;
+  max-height: calc(100% - 258px);
+  overflow: hidden;
+  left: 18px;
+  right: 18px;
+  bottom: 252px;
+  padding: 10px 14px 12px;
+  background: rgba(255, 255, 255, 0.97);
+  color: var(--navy);
+  border: 3px solid var(--navy);
+  border-radius: 16px;
+  box-shadow: 0 0 0 3px #fff, 0 4px 10px rgba(27, 44, 102, 0.25);
+  font-size: 12.5px;
+  z-index: 6;
+  transition: opacity 0.2s, transform 0.2s;
+}
+#details.hidden { opacity: 0; transform: translateY(8px); pointer-events: none; }
+#details .row { display: flex; justify-content: space-between; line-height: 1.75; }
+#details .row span { opacity: 0.75; }
+#details .bar, #counter .goal-bar {
+  height: 7px;
+  border-radius: 7px;
+  background: var(--ice);
+  border: 1.5px solid var(--navy);
+  overflow: hidden;
+  margin-top: 4px;
+}
+#details .bar i, #counter .goal-bar i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), #ffb238);
+  transition: width 0.4s;
+}
+
+/* ---------- 角色 ---------- */
+#pet {
+  position: absolute;
+  left: 30px;
+  bottom: 48px;
+  width: 200px;
+  height: 200px;
+  transform-origin: 50% 100%;
+}
+#sprite, #sprite-svg, #sprite-svg svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+#sprite.hidden, #sprite-svg.hidden { display: none; }
+
+.anim-idle    { animation: breathe 3.2s ease-in-out infinite; }
+.anim-working { animation: breathe 2.2s ease-in-out infinite; }
+.anim-rest    { animation: breathe 4.5s ease-in-out infinite; }
+.anim-happy, .anim-celebrate { animation: hop 0.6s ease-in-out infinite; }
+.anim-bye, .anim-hello { animation: sway 1.4s ease-in-out infinite; }
+.anim-hungry, .anim-offwork { animation: sway 2.6s ease-in-out infinite; }
+.poke { animation: squish 0.35s ease-out !important; }
+
+@keyframes breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.02, 0.975); } }
+@keyframes hop { 0%, 100% { transform: translateY(0) scale(1, 1); } 40% { transform: translateY(-12px) scale(0.98, 1.03); } 80% { transform: translateY(0) scale(1.04, 0.95); } }
+@keyframes sway { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
+@keyframes squish { 0% { transform: scale(1.1, 0.88); } 60% { transform: scale(0.95, 1.06); } 100% { transform: scale(1, 1); } }
+
+/* SVG 兜底角色的小动画 */
+.sk-tail { transform-origin: 150px 204px; animation: wag 1.8s ease-in-out infinite; }
+.sk-float { animation: floaty 1.6s ease-in-out infinite; }
+.sk-zzz { animation: floaty 2.4s ease-in-out infinite; }
+@keyframes wag { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(8deg); } }
+@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+/* 飘出来的金币 */
+#coins { position: absolute; inset: 0; pointer-events: none; }
+.coin-pop {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--gold);
+  border: 2px solid var(--gold-dark);
+  color: #7a4b00;
+  font-weight: 900;
+  font-size: 12px;
+  white-space: nowrap;
+  animation: pop-up 1.6s ease-out forwards;
+}
+@keyframes pop-up {
+  0% { opacity: 0; transform: translate(-50%, 10px) scale(0.6); }
+  20% { opacity: 1; transform: translate(-50%, -10px) scale(1.05); }
+  100% { opacity: 0; transform: translate(-50%, -70px) scale(1); }
+}
+
+/* ---------- 计数器 ---------- */
+#counter {
+  position: absolute;
+  left: 34px;
+  right: 34px;
+  bottom: 6px;
+  padding: 5px 14px 7px;
+  background: linear-gradient(180deg, #ffffff, var(--ice));
+  border: 3px solid var(--navy);
+  border-radius: 22px;
+  box-shadow: 0 0 0 3px #fff, 0 4px 10px rgba(27, 44, 102, 0.3);
+  color: var(--navy);
+  text-align: center;
+  z-index: 4;
+}
+#counter .label { font-size: 11px; font-weight: 700; opacity: 0.8; display: flex; align-items: center; justify-content: center; gap: 5px; }
+#phase-dot { width: 7px; height: 7px; border-radius: 50%; background: #9aa6c4; }
+#phase-dot.working { background: #3ccf7a; box-shadow: 0 0 0 0 rgba(60, 207, 122, .7); animation: pulse 1.6s infinite; }
+#phase-dot.lunch { background: var(--gold); }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(60, 207, 122, .6); } 100% { box-shadow: 0 0 0 7px rgba(60, 207, 122, 0); } }
+#counter .amount {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--blue);
+  text-shadow: 0 1px 0 #fff;
+}
+#counter.masked .amount { letter-spacing: 3px; }
+#counter .goal-bar { height: 5px; margin-top: 2px; }
+#counter.no-goal .goal-bar { display: none; }

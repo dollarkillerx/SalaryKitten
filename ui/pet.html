@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>薪水小猫</title>
+  <link rel="stylesheet" href="pet.css" />
+</head>
+<body>
+  <div id="stage">
+    <div id="bubble" class="hidden"><span id="bubble-text"></span></div>
+
+    <div id="details" class="hidden">
+      <div class="row"><span>月薪</span><b id="d-monthly"></b></div>
+      <div class="row"><span>日薪</span><b id="d-daily"></b></div>
+      <div class="row"><span>时薪</span><b id="d-hourly"></b></div>
+      <div class="row"><span id="d-next-label">距离下班</span><b id="d-next"></b></div>
+      <div class="row goal-row"><span>目标</span><b id="d-goal"></b></div>
+      <div class="bar"><i id="d-goal-bar"></i></div>
+    </div>
+
+    <div id="pet" class="anim-idle">
+      <img id="sprite" alt="" draggable="false" />
+      <div id="sprite-svg"></div>
+      <div id="coins"></div>
+    </div>
+
+    <div id="counter" title="点击查看详情，右键打开菜单">
+      <div class="label"><span id="phase-dot"></span><span id="phase-text">今日已赚</span></div>
+      <div class="amount" id="amount">¥0.00</div>
+      <div class="goal-bar"><i id="goal-bar"></i></div>
+    </div>
+  </div>
+
+  <script src="shared/salary.js"></script>
+  <script src="shared/kitten.js"></script>
+  <script src="shared/store.js"></script>
+  <script src="shared/characters.js"></script>
+  <script src="shared/lines.js"></script>
+  <script src="pet.js"></script>
+</body>
+</html>
