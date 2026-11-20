@@ -43,7 +43,7 @@
   "f6.title": "Auto-update",
   "f6.body": "Checks GitHub Releases in the background and tells you when a signed update is ready to install.",
   "formula": "monthly salary ÷ paid days per month ÷ working seconds per day",
-  "formula.note": "Set your salary, working days, hours, lunch break, currency and decimals. 21.75 paid days per month by default.",
+  "formula.note": "Set your salary, working days, hours, lunch break, currency (CNY, USD, JPY, KRW, EUR) and decimals. 21.75 paid days per month by default.",
   "chars.eyebrow": "Characters",
   "chars.title": "Pick your coworker",
   "chars.lead": "Switch any time from the right-click menu. Each one has 9 poses (working, lunch nap, celebrating, hungry…) and reacts differently when you poke her.",
