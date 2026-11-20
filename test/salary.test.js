@@ -58,3 +58,17 @@ test('formatMoney uses currency/decimals without full normalize', () => {
   assert.strictEqual(E.formatMoney(5, { currency: '¥', decimals: 0 }), '¥5');
   assert.strictEqual(E.formatMoney(5, { decimals: 9 }), '¥5.0000');
 });
+
+test('validation accepts any positive salary and decimal goals', () => {
+  assert.deepStrictEqual(E.validate({ ...S, monthlySalary: 2156564, payDaysPerMonth: 22, goal: 99.5 }), []);
+  assert.deepStrictEqual(E.validate({ ...S, monthlySalary: 8888.88 }), []);
+});
+
+test('validation rejects empty or invalid numbers with Chinese messages', () => {
+  assert.ok(E.validate({ ...S, monthlySalary: 0 }).some((e) => e.includes('月薪')));
+  assert.ok(E.validate({ ...S, monthlySalary: '' }).some((e) => e.includes('月薪')));
+  assert.ok(E.validate({ ...S, payDaysPerMonth: 0 }).some((e) => e.includes('计薪天数')));
+  assert.ok(E.validate({ ...S, payDaysPerMonth: 40 }).some((e) => e.includes('计薪天数')));
+  assert.ok(E.validate({ ...S, goal: -1 }).some((e) => e.includes('目标')));
+  assert.ok(E.validate({ ...S, lunchReminderMin: 500 }).some((e) => e.includes('提醒')));
+});

@@ -56,6 +56,12 @@
   function validate(raw) {
     const s = normalize(raw);
     const errs = [];
+    const r = raw || {};
+    const num = (v) => (v === '' || v == null ? NaN : Number(v));
+    if (!(num(r.monthlySalary) > 0)) errs.push('请填写月薪（要大于 0）');
+    if ('payDaysPerMonth' in r && !(num(r.payDaysPerMonth) >= 1 && num(r.payDaysPerMonth) <= 31)) errs.push('每月计薪天数要在 1 到 31 之间');
+    if ('goal' in r && num(r.goal) < 0) errs.push('目标金额不能是负数');
+    if ('lunchReminderMin' in r && !(num(r.lunchReminderMin) >= 0 && num(r.lunchReminderMin) <= 120)) errs.push('午休提前提醒要在 0 到 120 分钟之间');
     const start = toSec(s.workStart), end = toSec(s.workEnd);
     if (!Number.isFinite(start) || !Number.isFinite(end)) errs.push('上下班时间格式不对');
     else if (end <= start) errs.push('下班时间要晚于上班时间（暂不支持跨夜班）');
