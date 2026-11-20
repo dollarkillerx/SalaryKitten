@@ -1,6 +1,6 @@
 [package]
 name = "salary-kitten"
-version = "0.1.1"
+version = "0.1.2"
 description = "薪水小猫 - 桌面薪水宠物"
 edition = "2021"
 

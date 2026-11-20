@@ -1,7 +1,7 @@
 {
   "name": "salary-kitten",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "薪水小猫：实时显示今天赚了多少钱的桌面宠物",
   "scripts": {
     "dev": "tauri dev",
