@@ -34,6 +34,13 @@
     $('subtitle').textContent = c.desc + '，会实时帮你数钱钱~';
   }
 
+  // 货币下拉框：选项来自薪水引擎；切换货币时把小数位设成该货币的习惯值（日元、韩元 0 位）
+  $('currency-select').innerHTML = Object.entries(E.CURRENCIES).map(([code, c]) =>
+    `<option value="${code}">${c.name} ${code}（${c.symbol}）</option>`).join('');
+  $('currency-select').addEventListener('change', (e) => {
+    form.elements.decimals.value = String(E.CURRENCIES[e.target.value].decimals);
+  });
+
   $('days').innerHTML = DAY_ORDER.map((d) =>
     `<label title="周${DAY_NAMES[d]}"><input type="checkbox" name="day" value="${d}" />${DAY_NAMES[d]}</label>`).join('');
 
@@ -55,11 +62,10 @@
       if (!el.name || el.name === 'day') continue;
       if (el.type === 'checkbox') out[el.name] = el.checked;
       else if (el.type === 'radio') { if (el.checked) out[el.name] = el.value; }
-      else if (el.type === 'number' || el.tagName === 'SELECT') out[el.name] = Number(el.value);
+      else if (el.type === 'number' || 'num' in el.dataset) out[el.name] = Number(el.value);
       else out[el.name] = el.value.trim();
     }
     out.workDays = [...form.querySelectorAll('input[name="day"]:checked')].map((el) => Number(el.value));
-    if (!out.currency) out.currency = '¥';
     return out;
   }
 
@@ -75,8 +81,8 @@
     box.innerHTML = errs.map((e) => '⚠️ ' + e).join('<br>');
     const rate = E.ratePerSecond(s);
     const fmt = (v, d) => s.currency + v.toFixed(d);
-    $('p-day').textContent = errs.length ? '-' : fmt(rate * E.workdaySeconds(s), 2);
-    $('p-hour').textContent = errs.length ? '-' : fmt(rate * 3600, 2);
+    $('p-day').textContent = errs.length ? '-' : fmt(rate * E.workdaySeconds(s), s.decimals);
+    $('p-hour').textContent = errs.length ? '-' : fmt(rate * 3600, s.decimals);
     $('p-sec').textContent = errs.length ? '-' : fmt(rate, 4);
     return errs;
   }

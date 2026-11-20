@@ -3,6 +3,21 @@
  * 浏览器里挂在 window.SalaryEngine；Node 里通过 module.exports 导出（用于测试）。
  */
 (function (root) {
+  // 可选货币：存货币代码（CNY 和 JPY 都是 ¥，只存符号分不清）
+  const CURRENCIES = {
+    CNY: { symbol: '¥', name: '人民币', decimals: 2 },
+    USD: { symbol: '$', name: '美元', decimals: 2 },
+    JPY: { symbol: '¥', name: '日元', decimals: 0 },
+    KRW: { symbol: '₩', name: '韩元', decimals: 0 },
+    EUR: { symbol: '€', name: '欧元', decimals: 2 },
+  };
+  // 旧版本只存了符号：按符号推断货币代码
+  function currencyCodeOf(s) {
+    if (s && CURRENCIES[s.currencyCode]) return s.currencyCode;
+    const bySymbol = { '$': 'USD', '€': 'EUR', '₩': 'KRW' };
+    return bySymbol[String((s && s.currency) || '').trim()] || 'CNY';
+  }
+
   const DEFAULTS = {
     monthlySalary: 10000,      // 月薪
     payDaysPerMonth: 21.75,    // 每月计薪天数（国内法定 21.75）
@@ -14,7 +29,8 @@
     lunchEnd: '13:00',
     lunchReminderMin: 5,       // 午休前 N 分钟提醒，0 = 不提醒
     goal: 100,                 // 今日目标金额，0 = 不设目标
-    currency: '¥',
+    currencyCode: 'CNY',
+    currency: '¥',             // 由 currencyCode 推出，不单独设置
     decimals: 2,
     notify: true,              // 系统通知
   };
@@ -27,6 +43,8 @@
 
   function normalize(s) {
     const out = Object.assign({}, DEFAULTS, s || {});
+    out.currencyCode = currencyCodeOf(s);
+    out.currency = CURRENCIES[out.currencyCode].symbol;
     out.monthlySalary = Math.max(0, Number(out.monthlySalary) || 0);
     out.payDaysPerMonth = Number(out.payDaysPerMonth) > 0 ? Number(out.payDaysPerMonth) : DEFAULTS.payDaysPerMonth;
     out.goal = Math.max(0, Number(out.goal) || 0);
@@ -171,7 +189,7 @@
   }
 
   const api = {
-    DEFAULTS, normalize, validate, schedule, toSec,
+    DEFAULTS, CURRENCIES, normalize, validate, schedule, toSec,
     workdaySeconds: workdaySecondsOf, ratePerSecond, phaseAt, workedSeconds, earnedAt,
     info, formatMoney, formatDuration, dayKey,
   };

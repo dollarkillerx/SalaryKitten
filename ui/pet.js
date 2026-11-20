@@ -122,7 +122,7 @@
   }
 
   const money = (v) => E.formatMoney(v, settings);
-  const maskText = () => settings.currency + '***.' + '*'.repeat(Math.max(1, settings.decimals));
+  const maskText = () => settings.currency + '***' + (settings.decimals > 0 ? '.' + '*'.repeat(settings.decimals) : '');
   // 对外展示的金额（气泡、通知、托盘）：隐藏模式下一律打码
   const shown = (v) => (masked ? maskText() : money(v));
 

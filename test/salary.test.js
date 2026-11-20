@@ -72,3 +72,20 @@ test('validation rejects empty or invalid numbers with Chinese messages', () => 
   assert.ok(E.validate({ ...S, goal: -1 }).some((e) => e.includes('目标')));
   assert.ok(E.validate({ ...S, lunchReminderMin: 500 }).some((e) => e.includes('提醒')));
 });
+
+test('currency: code picks the symbol, old symbol-only settings migrate', () => {
+  assert.strictEqual(E.normalize({}).currencyCode, 'CNY');
+  assert.strictEqual(E.normalize({ currencyCode: 'KRW' }).currency, '₩');
+  assert.strictEqual(E.normalize({ currencyCode: 'JPY' }).currency, '¥');
+  assert.strictEqual(E.normalize({ currencyCode: 'EUR', currency: '$' }).currency, '€'); // code wins
+  assert.strictEqual(E.normalize({ currency: '$' }).currencyCode, 'USD');               // 0.1.0 settings
+  assert.strictEqual(E.normalize({ currency: '¥' }).currencyCode, 'CNY');
+  assert.strictEqual(E.normalize({ currencyCode: 'XYZ' }).currencyCode, 'CNY');
+  assert.deepStrictEqual(Object.keys(E.CURRENCIES), ['CNY', 'USD', 'JPY', 'KRW', 'EUR']);
+});
+
+test('currency: zero-decimal formatting for JPY / KRW', () => {
+  assert.strictEqual(E.formatMoney(1234.56, E.normalize({ currencyCode: 'JPY', decimals: 0 })), '¥1235');
+  assert.strictEqual(E.formatMoney(50000, E.normalize({ currencyCode: 'KRW', decimals: 0 })), '₩50000');
+  assert.strictEqual(E.formatMoney(12.5, E.normalize({ currencyCode: 'USD' })), '$12.50');
+});
