@@ -101,8 +101,10 @@
     el.bubbleText.textContent = text;
     el.bubble.classList.toggle('big', big);
     el.bubble.classList.remove('hidden');
+    if (dock) dockHold(ms);
+    makeRoom();
     clearTimeout(bubbleTimer);
-    bubbleTimer = setTimeout(() => el.bubble.classList.add('hidden'), ms);
+    bubbleTimer = setTimeout(() => { el.bubble.classList.add('hidden'); releaseRoom(); }, ms);
   }
 
   // ---------- 系统通知 ----------
@@ -266,19 +268,46 @@
   }
 
   // ---------- 交互：拖动 / 点击 / 右键 ----------
-  let down = null;
+  // macOS 的系统拖动不让窗口顶部进到菜单栏下面，而角色上方留着气泡的空白，
+  // 角色就到不了屏幕最上面；所以 macOS 上自己跟着鼠标挪窗口
+  const OWN_DRAG = /Mac/i.test(navigator.platform || navigator.userAgent);
+  let down = null, drag = null, dragFrame = 0;
   function onDown(e) {
     if (e.button !== 0) return;
     down = { x: e.screenX, y: e.screenY, target: e.currentTarget };
   }
+  function moveDrag(e) {
+    drag.x = drag.wx + (e.screenX - drag.sx) * scale;
+    drag.y = drag.wy + (e.screenY - drag.sy) * scale;
+    if (dragFrame) return;
+    dragFrame = requestAnimationFrame(() => {
+      dragFrame = 0;
+      if (!drag) return;
+      let { x, y } = drag;
+      // 角色头顶最多到屏幕工作区顶部（窗口上方的空白可以伸到菜单栏后面）
+      const m = drag.mons && nearestMonitor(drag.mons, x + 130 * scale, y + el.pet.offsetTop * scale);
+      if (m) y = Math.max(y, areaOf(m).position.y - el.pet.offsetTop * scale);
+      win.setPosition(new dpi.PhysicalPosition(Math.round(x), Math.round(y))).catch(() => {});
+    });
+  }
   window.addEventListener('mousemove', (e) => {
+    if (drag) { moveDrag(e); return; }
     if (!down) return;
     if (Math.hypot(e.screenX - down.x, e.screenY - down.y) > 4) {
+      const start = down;
       down = null;
-      if (win) win.startDragging().catch(() => {});
+      if (!win) return;
+      if (OWN_DRAG && winPos) {
+        drag = { sx: start.x, sy: start.y, wx: winPos.x, wy: winPos.y, mons: null };
+        T.window.availableMonitors().then((m) => { if (drag) drag.mons = m; }).catch(() => {});
+        moveDrag(e);
+      } else {
+        win.startDragging().catch(() => {});
+      }
     }
   });
   window.addEventListener('mouseup', () => {
+    if (drag) { drag = null; return; }
     if (!down) return;
     const t = down.target;
     down = null;
@@ -307,7 +336,7 @@
 
   function toggleDetails() {
     const hidden = el.details.classList.toggle('hidden');
-    if (!hidden) el.bubble.classList.add('hidden');
+    if (!hidden) { el.bubble.classList.add('hidden'); makeRoom(); } else releaseRoom();
   }
 
   async function openSettings() { invoke('open_settings').catch(() => {}); }
@@ -390,6 +419,7 @@
 
   window.addEventListener('contextmenu', async (e) => {
     e.preventDefault();
+    holdUntil = Date.now() + 4000; // 菜单开着时别缩回去
     if (!T || !T.menu) { openSettings(); return; }
     try {
       if (!ctx) ctx = await buildMenu();
@@ -402,33 +432,198 @@
 
   // ---------- 透明区域点击穿透 ----------
   // 鼠标不在角色/计数器/气泡上时，让点击穿透到桌面
-  let ignoring = false, winPos = null, scale = 1;
+  let ignoring = false, winPos = null, winSize = null, scale = 1;
   let petVisible = true; // 隐藏时暂停轮询（托盘切换由 Rust 发 pet-visibility 事件）
   function hidePet() { petVisible = false; if (win) win.hide(); }
   async function setupClickThrough() {
-    if (!win || typeof T.window.cursorPosition !== 'function') return;
+    if (!win || typeof T.window.cursorPosition !== 'function') return false;
     try {
       winPos = await win.outerPosition();
+      winSize = await win.outerSize();
       scale = await win.scaleFactor();
-      win.onMoved(({ payload }) => { winPos = payload; savePos(payload); });
+      win.onMoved(({ payload }) => onWindowMoved(payload));
       win.onScaleChanged(({ payload }) => { scale = payload.scaleFactor; });
-    } catch (_) { return; }
+    } catch (_) { return false; }
 
     const hitEls = [el.pet, el.counter, el.bubble, el.details];
     setInterval(async () => {
-      if (down || !petVisible) return;
+      if (down || drag || !petVisible) return;
       let p;
       try { p = await T.window.cursorPosition(); } catch (_) { return; }
       const x = (p.x - winPos.x) / scale, y = (p.y - winPos.y) / scale;
-      const hit = hitEls.some((n) => {
+      const over = (n) => {
         if (n.classList.contains('hidden')) return false;
         const r = n.getBoundingClientRect();
         return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-      });
+      };
+      // 收起时只露出角色，其他元素都不算
+      const hit = dock && dock.tucked ? over(el.pet) : hitEls.some(over);
+      dockTick(hit);
       if (hit === !ignoring) return;
       ignoring = !hit;
       win.setIgnoreCursorEvents(ignoring).catch(() => {});
     }, 100);
+    return true;
+  }
+
+  // ---------- 贴边收起 ----------
+  // 拖到屏幕左/右边缘松手后，窗口滑进屏幕外，只露出半个角色；鼠标移上去或有提醒时滑出来
+  const PEEK = 70;   // 收起时角色框露在屏幕里的宽度（CSS px）
+  const SNAP = 16;   // 角色框离屏幕边缘这么近（或已经出界）就吸附
+  const LEAVE_MS = 700;
+  let dock = null;   // { side: 'left' | 'right', edge: 屏幕边缘的物理 x, tucked }
+  let selfMoveUntil = 0, settleTimer = null, slideToken = 0, leaveAt = 0, holdUntil = 0;
+
+  const petBox = () => ({ left: el.pet.offsetLeft, right: el.pet.offsetLeft + el.pet.offsetWidth });
+
+  function onWindowMoved(p) {
+    winPos = p;
+    if (Date.now() < selfMoveUntil) return; // 自己滑动产生的移动
+    if (dock) setDock(null);                 // 用户把它拖走了
+    liftBack = null;
+    savePos(p);
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => checkSnap().catch(() => {}), 350);
+  }
+
+  const areaOf = (m) => m.workArea || { position: m.position, size: m.size };
+  // 离 (px, py) 最近的屏幕（在屏幕里则距离为 0）；超过 maxDist 就算不在任何屏幕附近
+  function nearestMonitor(mons, px, py, maxDist = Infinity) {
+    let best = null, bestD = Infinity;
+    for (const m of mons) {
+      const a = areaOf(m);
+      const dx = Math.max(a.position.x - px, 0, px - (a.position.x + a.size.width));
+      const dy = Math.max(a.position.y - py, 0, py - (a.position.y + a.size.height));
+      const d = Math.hypot(dx, dy);
+      if (d < bestD) { best = m; bestD = d; }
+    }
+    return bestD <= maxDist ? best : null;
+  }
+
+  // 角色所在屏幕，以及左右两边是否还连着别的屏幕（屏幕之间的边不吸附）
+  async function edgesHere() {
+    const mons = await T.window.availableMonitors();
+    const box = petBox();
+    const cx = winPos.x + ((box.left + box.right) / 2) * scale;
+    const cy = winPos.y + (el.pet.offsetTop + el.pet.offsetHeight / 2) * scale;
+    const inside = (m, px, py) => px >= m.position.x && px < m.position.x + m.size.width &&
+      py >= m.position.y && py < m.position.y + m.size.height;
+    const m = nearestMonitor(mons, cx, cy); // 拖得太猛时角色中心可能已经在屏幕外
+    if (!m) return null;
+    const a = areaOf(m);
+    const L = a.position.x, R = a.position.x + a.size.width;
+    const near = (px) => mons.some((n) => n !== m && inside(n, px, cy));
+    return { left: near(m.position.x - 2) ? null : L, right: near(m.position.x + m.size.width + 1) ? null : R };
+  }
+
+  async function checkSnap() {
+    if (!winPos || dock) return;
+    const e = await edgesHere();
+    if (!e) return;
+    const box = petBox();
+    const petL = winPos.x + box.left * scale, petR = winPos.x + box.right * scale;
+    if (e.left != null && petL <= e.left + SNAP * scale) setDock({ side: 'left', edge: e.left, tucked: false });
+    else if (e.right != null && petR >= e.right - SNAP * scale) setDock({ side: 'right', edge: e.right, tucked: false });
+    else return;
+    tuck();
+  }
+
+  function setDock(d) {
+    dock = d;
+    SkStore.set('dock', d ? d.side : null);
+    document.body.classList.toggle('dock-left', !!d && d.side === 'left');
+    document.body.classList.toggle('dock-right', !!d && d.side === 'right');
+    if (!d) { slideToken++; slideGoal = null; document.body.classList.remove('tucked'); }
+  }
+
+  // 收起：只露出角色框的 PEEK；探出：整个窗口回到屏幕里（气泡不会被屏幕边切掉）
+  function dockX(tucked) {
+    const box = petBox();
+    if (dock.side === 'right') return dock.edge - (tucked ? (box.left + PEEK) * scale : winSize.width);
+    return dock.edge - (tucked ? (box.right - PEEK) * scale : 0);
+  }
+
+  // 程序滑动：贴边收起/探出改 x，给气泡让位置改 y，两者可以同时进行
+  let slideGoal = null;
+  async function slideTo(part) {
+    slideGoal = Object.assign({ x: winPos.x, y: winPos.y }, slideGoal, part);
+    const token = ++slideToken;
+    const { x, y } = slideGoal, x0 = winPos.x, y0 = winPos.y, steps = 9;
+    for (let i = 1; i <= steps; i++) {
+      if (token !== slideToken) return;
+      const k = 1 - Math.pow(1 - i / steps, 3);
+      const p = { x: Math.round(x0 + (x - x0) * k), y: Math.round(y0 + (y - y0) * k) };
+      selfMoveUntil = Date.now() + 300;
+      try { await win.setPosition(new dpi.PhysicalPosition(p.x, p.y)); } catch (_) { return; }
+      winPos = p;
+      await new Promise((r) => setTimeout(r, 16));
+    }
+    if (token === slideToken) slideGoal = null;
+  }
+
+  // 角色拖到屏幕最上面时，窗口上方的气泡区在屏幕外：说话/看详情时先往下挪出位置，收起后回去
+  let liftBack = null;
+  async function makeRoom() {
+    if (!win || !winPos || drag) return;
+    let mons;
+    try { mons = await T.window.availableMonitors(); } catch (_) { return; }
+    const m = nearestMonitor(mons, winPos.x + 130 * scale, winPos.y + el.pet.offsetTop * scale);
+    if (!m) return;
+    const top = areaOf(m).position.y;
+    const y = slideGoal ? slideGoal.y : winPos.y;
+    if (y >= top) return;
+    if (liftBack == null) liftBack = y;
+    slideTo({ y: top });
+  }
+  function releaseRoom() {
+    if (liftBack == null) return;
+    if (!el.bubble.classList.contains('hidden') || !el.details.classList.contains('hidden')) return;
+    const y = liftBack;
+    liftBack = null;
+    slideTo({ y });
+  }
+
+  function tuck() {
+    if (!dock || dock.tucked) return;
+    dock.tucked = true;
+    leaveAt = 0;
+    el.details.classList.add('hidden');
+    releaseRoom();
+    document.body.classList.add('tucked');
+    slideTo({ x: dockX(true) });
+  }
+
+  function reveal() {
+    if (!dock || !dock.tucked) return;
+    dock.tucked = false;
+    leaveAt = 0;
+    document.body.classList.remove('tucked');
+    slideTo({ x: dockX(false) });
+  }
+
+  // 每 100ms 由点击穿透轮询调用
+  function dockTick(hit) {
+    if (!dock) return;
+    if (dock.tucked) { if (hit) reveal(); return; }
+    const busy = hit || Date.now() < holdUntil || !el.details.classList.contains('hidden');
+    if (busy) { leaveAt = 0; return; }
+    if (!leaveAt) leaveAt = Date.now();
+    else if (Date.now() - leaveAt > LEAVE_MS) tuck();
+  }
+
+  // 有话要说时先探出头来
+  function dockHold(ms) {
+    holdUntil = Math.max(holdUntil, Date.now() + ms);
+    reveal();
+  }
+
+  async function restoreDock() {
+    const side = SkStore.get('dock', null);
+    if (!side || !winPos) return;
+    const e = await edgesHere();
+    if (!e || e[side] == null) { SkStore.set('dock', null); return; }
+    setDock({ side, edge: e[side], tucked: false });
+    tuck();
   }
 
   // ---------- 位置记忆 ----------
@@ -443,12 +638,8 @@
       const saved = SkStore.get('pos', null);
       const mons = await T.window.availableMonitors();
       const size = await win.outerSize();
-      const areaOf = (m) => m.workArea || { position: m.position, size: m.size };
-      const home = mons.find((m) => {
-        const a = areaOf(m);
-        return saved && saved.x >= a.position.x && saved.y >= a.position.y &&
-          saved.x < a.position.x + a.size.width && saved.y < a.position.y + a.size.height;
-      });
+      // 按窗口中心找所在屏幕；贴边时窗口一部分在屏幕外，所以允许离屏幕不超过一个窗口宽
+      const home = saved ? nearestMonitor(mons, saved.x + size.width / 2, saved.y + size.height / 2, size.width) : null;
       let x, y, a;
       if (home) {
         a = areaOf(home);
@@ -461,9 +652,12 @@
         x = a.position.x + a.size.width - size.width - 20 * s;
         y = a.position.y + a.size.height - size.height;
       }
-      // 整个窗口都要在屏幕工作区里（窗口变高后旧位置可能会掉到屏幕外）
+      // 窗口要在屏幕工作区里（窗口变高后旧位置可能会掉到屏幕外）；
+      // 例外：角色上方的空白可以伸出屏幕顶部（角色被拖到最上面时）
+      const ws = await win.scaleFactor();
       x = Math.min(Math.max(x, a.position.x), a.position.x + a.size.width - size.width);
-      y = Math.min(Math.max(y, a.position.y), a.position.y + a.size.height - size.height);
+      y = Math.min(Math.max(y, a.position.y - el.pet.offsetTop * ws), a.position.y + a.size.height - size.height);
+      selfMoveUntil = Date.now() + 1000; // 恢复位置不算用户拖动
       await win.setPosition(new dpi.PhysicalPosition(Math.round(x), Math.round(y)));
     } catch (err) { console.error(err); }
   }
@@ -510,7 +704,7 @@
     setTimeout(autoCheckUpdate, 20000);            // 启动后后台检查一次
     setInterval(autoCheckUpdate, 12 * 3600 * 1000); // 桌宠常驻，之后每 12 小时再查一次
     await restorePos();
-    setupClickThrough();
+    if (await setupClickThrough()) await restoreDock();
     if (params.has('details')) toggleDetails(); // 调试：启动即展开详情卡片
     if (params.has('settings')) openSettings();
   }

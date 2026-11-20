@@ -24,7 +24,7 @@
 - **Work-day reminders** - Greets you when work starts, sees you off at the end of the day with today's total, and reminds you before lunch, at lunch and when lunch is over
 - **Daily goal** - Celebrates with a flag and confetti when you reach your goal (for example ¥100)
 - **Five characters** - 蓝色大肥鱼, Winter 大肥鱼, Claude娘, "Fake Claude" and GPT娘, each with 9 poses, her own lines and her own colours
-- **A real desktop pet** - Drag it anywhere (the position is remembered), click her to chat, click the counter for hourly pay and time until the end of the day; clicks on empty space go through to the desktop
+- **A real desktop pet** - Drag it anywhere (the position is remembered), click her to chat, click the counter for hourly pay and time until the end of the day; clicks on empty space go through to the desktop. Drag her to the left or right edge of the screen and she tucks in, peeking out; hover to bring her back
 - **Boss mode** - Hide every amount (bubbles, notifications, menu bar) with one click
 - **Menu bar / tray** - Today's earnings in the macOS menu bar; tray tooltip on Windows
 - **Auto-update** - Checks GitHub Releases in the background after launch and tells you when an update is ready; updates are signed

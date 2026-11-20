@@ -1,3 +1,5 @@
+#[cfg(target_os = "macos")]
+mod mac_window;
 mod updater;
 
 use tauri::{
@@ -88,6 +90,14 @@ pub fn run() {
             // macOS：不在 Dock 显示，只在菜单栏
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
+            // macOS：桌宠可以拖到屏幕最上面（窗口上方的气泡空白伸到菜单栏后面）
+            #[cfg(target_os = "macos")]
+            if let Some(pet) = app.get_webview_window("pet") {
+                if let Ok(ns) = pet.ns_window() {
+                    mac_window::allow_above_menu_bar(ns);
+                }
+            }
 
             let toggle = MenuItem::with_id(app, "toggle", "显示 / 隐藏桌宠", true, None::<&str>)?;
             let settings = MenuItem::with_id(app, "settings", "设置…", true, None::<&str>)?;
