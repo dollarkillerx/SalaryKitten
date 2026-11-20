@@ -1,0 +1,14 @@
+{
+  "name": "salarykitten-promo",
+  "private": true,
+  "type": "module",
+  "description": "Bilibili promo video: Qwen TTS voiceover + HTML scenes rendered with headless Chrome + ffmpeg",
+  "scripts": {
+    "tts": "node tts.mjs",
+    "preview": "node render.mjs --preview",
+    "render": "node render.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.43.1"
+  }
+}

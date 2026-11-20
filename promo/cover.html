@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; } body { margin: 0; }
+  #c { position: relative; width: 1920px; height: 1200px; overflow: hidden; font-family: "PingFang SC","Hiragino Sans GB",sans-serif;
+       background: radial-gradient(1100px 700px at 15% 10%, #3a63c8, #121b44 70%); }
+  .rays { position: absolute; inset: -40%; background: repeating-conic-gradient(from 0deg at 72% 62%, rgba(255,255,255,.06) 0 8deg, transparent 8deg 16deg); }
+  h1 { position: absolute; left: 80px; top: 95px; margin: 0; font-size: 150px; line-height: 1.12; font-weight: 900; color: #fff;
+       -webkit-text-stroke: 16px #0d1638; paint-order: stroke fill; letter-spacing: 4px; transform: rotate(-3deg); }
+  h1 em { font-style: normal; color: #ffd45c; }
+  .amt { position: absolute; left: 90px; top: 520px; font-size: 190px; font-weight: 900; color: #ffd45c; font-variant-numeric: tabular-nums;
+         -webkit-text-stroke: 14px #0d1638; paint-order: stroke fill; }
+  .tag { position: absolute; left: 96px; top: 790px; display: flex; gap: 22px; }
+  .tag span { padding: 14px 30px; border-radius: 999px; background: #fff; border: 6px solid #0d1638; box-shadow: 0 8px 0 #0d1638;
+              font-size: 46px; font-weight: 900; color: #1b2c66; }
+  .chars img { position: absolute; object-fit: contain; filter: drop-shadow(0 18px 24px rgba(0,0,0,.35)); }
+  .brand { position: absolute; right: 60px; bottom: 85px; display: flex; align-items: center; gap: 18px; font-size: 60px; font-weight: 900; color: #fff;
+           -webkit-text-stroke: 10px #0d1638; paint-order: stroke fill; }
+  .brand img { width: 96px; height: 96px; border-radius: 24px; border: 5px solid #fff; }
+</style></head><body><div id="c">
+  <div class="rays"></div>
+  <h1>上班的每一秒<br>都在<em>赚钱</em>！</h1>
+  <div class="amt">¥459.77</div>
+  <div class="tag"><span>实时数工资</span><span>5 个桌宠</span><span>开源免费</span></div>
+  <div class="chars">
+    <img src="../ui/assets/characters/gpt/happy.png" style="left:1110px;top:110px;width:420px;height:420px;transform:rotate(-8deg)">
+    <img src="../ui/assets/characters/claude/happy.png" style="left:1480px;top:150px;width:420px;height:420px;transform:rotate(8deg)">
+    <img src="../ui/assets/characters/winterfish/happy.png" style="left:1060px;top:600px;width:430px;height:430px;transform:rotate(-6deg)">
+    <img src="../ui/assets/characters/fishclaude/happy.png" style="left:1460px;top:560px;width:430px;height:430px;transform:rotate(5deg)">
+    <img src="../ui/assets/characters/bluefish/celebrate.png" style="left:1150px;top:250px;width:640px;height:640px">
+  </div>
+  <div class="brand"><img src="../assets/logo.png">薪水小猫</div>
+</div></body></html>

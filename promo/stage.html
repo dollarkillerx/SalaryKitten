@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>薪水小猫 宣传片</title>
+<style>
+  :root { --navy:#1b2c66; --blue:#2b4fa8; --sky:#6fa8ff; --ice:#eaf2ff; --gold:#ffd45c; --font:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #000; }
+  #frame { position: relative; width: 1920px; height: 1080px; overflow: hidden; font-family: var(--font); color: var(--navy); }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .abs { position: absolute; }
+
+  /* 背景 */
+  .bg-night { background: radial-gradient(1200px 700px at 30% 20%, #2e4c9a, #10183a 70%); }
+  .bg-day { background: linear-gradient(135deg, #dce9ff 0%, #fff3e6 100%); }
+  .bg-desk { background: linear-gradient(160deg, #6f8fd8 0%, #9d8fe0 45%, #f0b6c8 100%); }
+  .menubar { position: absolute; left: 0; right: 0; top: 0; height: 40px; background: rgba(255,255,255,.55); backdrop-filter: blur(20px);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 22px; font-size: 19px; color: #1d1d1f; font-weight: 600; }
+  .menubar .left span { margin-right: 26px; } .menubar .left span:first-child { font-weight: 800; }
+  .menubar .right { display: flex; gap: 22px; align-items: center; }
+  .menubar .amt { background: rgba(0,0,0,.08); padding: 2px 10px; border-radius: 7px; font-variant-numeric: tabular-nums; }
+
+  /* 桌宠（复刻 App 的气泡和计数器样式） */
+  .pet { position: absolute; width: 260px; height: 440px; transform-origin: 50% 100%; }
+  .pet img.sprite { position: absolute; left: 30px; bottom: 48px; width: 200px; height: 200px; object-fit: contain; transform-origin: 50% 100%; }
+  .pet .bubble { position: absolute; left: 6px; right: 6px; bottom: 252px; padding: 9px 13px; background: #fff; color: var(--line);
+    border: 3px solid var(--line); border-radius: 18px; box-shadow: 0 0 0 3px #fff, 0 4px 10px rgba(27,44,102,.25);
+    font-size: 14px; font-weight: 700; line-height: 1.45; text-align: center; transform-origin: 50% 100%; }
+  .pet .bubble::before, .pet .bubble::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); border-style: solid; }
+  .pet .bubble::before { bottom: -15px; border-width: 13px 10px 0; border-color: var(--line) transparent transparent; }
+  .pet .bubble::after { bottom: -9px; border-width: 9px 7px 0; border-color: #fff transparent transparent; }
+  .pet .counter { position: absolute; left: 34px; right: 34px; bottom: 6px; padding: 5px 14px 7px; text-align: center;
+    background: linear-gradient(180deg, #fff, var(--soft)); border: 3px solid var(--line); border-radius: 22px;
+    box-shadow: 0 0 0 3px #fff, 0 4px 10px rgba(27,44,102,.3); color: var(--line); }
+  .pet .counter .lab { font-size: 11px; font-weight: 700; opacity: .8; }
+  .pet .counter .lab i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #3ccf7a; margin-right: 5px; vertical-align: 1px; }
+  .pet .counter .amt { font-size: 22px; font-weight: 900; color: var(--main); font-variant-numeric: tabular-nums; }
+  .pet .counter .bar { height: 5px; border-radius: 5px; border: 1.5px solid var(--line); background: var(--soft); overflow: hidden; margin-top: 2px; }
+  .pet .counter .bar i { display: block; height: 100%; width: 30%; background: linear-gradient(90deg, #ffd45c, #ffb238); }
+
+  /* 通用 */
+  .title { font-weight: 900; letter-spacing: 2px; }
+  .chip { display: inline-block; padding: 10px 22px; border-radius: 999px; background: #fff; border: 3px solid var(--navy);
+    box-shadow: 0 5px 0 var(--navy); font-weight: 900; font-size: 30px; }
+  .card { background: #fff; border-radius: 32px; border: 4px solid var(--navy); box-shadow: 0 10px 0 var(--navy); }
+  .coin { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3b0, #ffd45c 45%, #e0a21b);
+    border: 4px solid #c98a10; display: grid; place-items: center; font-weight: 900; color: #8a5a00; font-size: 32px; }
+  .confetti { position: absolute; width: 18px; height: 10px; border-radius: 3px; }
+  .menu { position: absolute; width: 300px; background: rgba(246,246,248,.96); border-radius: 12px; padding: 6px; box-shadow: 0 18px 50px rgba(0,0,0,.35);
+    font-size: 19px; color: #1d1d1f; border: 1px solid rgba(0,0,0,.1); }
+  .menu div { padding: 7px 14px; border-radius: 7px; }
+  .menu div.sep { height: 1px; padding: 0; margin: 5px 8px; background: rgba(0,0,0,.12); }
+  .menu div.hl { background: #2f6fe8; color: #fff; }
+
+  /* 字幕 */
+  #subs { position: absolute; left: 0; right: 0; bottom: 46px; text-align: center; font-size: 46px; font-weight: 900; color: #fff;
+    -webkit-text-stroke: 9px #142152; paint-order: stroke fill; letter-spacing: 1px; text-shadow: 0 4px 12px rgba(0,0,0,.35); z-index: 50; }
+  #wm { position: absolute; left: 28px; top: 56px; display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 900; color: #fff;
+    -webkit-text-stroke: 5px #142152; paint-order: stroke fill; z-index: 40; }
+  #wm img { width: 40px; height: 40px; border-radius: 10px; border: 2px solid #fff; }
+</style>
+</head>
+<body>
+<div id="frame">
+  <!-- 1. hook -->
+  <section class="scene bg-night" id="s-hook">
+    <div id="hook-coins"></div>
+    <div class="abs title" id="hook-q" style="left:0;right:0;top:210px;text-align:center;font-size:84px;color:#fff;-webkit-text-stroke:0">上班的每一秒，<span style="color:#ffd45c">值多少钱？</span></div>
+    <div class="abs" id="hook-amt" style="left:0;right:0;top:420px;text-align:center;font-size:190px;font-weight:900;color:#ffd45c;font-variant-numeric:tabular-nums;text-shadow:0 10px 40px rgba(255,212,92,.35)">¥0.00</div>
+    
+  </section>
+
+  <!-- 2. intro -->
+  <section class="scene bg-day" id="s-intro">
+    <img class="abs" id="intro-logo" src="../assets/logo.png" style="left:330px;top:250px;width:220px;height:220px;border-radius:52px;box-shadow:0 20px 50px rgba(27,44,102,.25)">
+    <div class="abs title" id="intro-title" style="left:600px;top:250px;font-size:150px;color:var(--blue)">薪水小猫</div>
+    <div class="abs" id="intro-sub" style="left:606px;top:440px;font-size:50px;font-weight:800;color:#5d6a8f">一秒一秒帮你数工资的桌宠</div>
+    <div class="abs" id="intro-tags" style="left:606px;top:540px;display:flex;gap:18px">
+      <span class="chip">Mac</span><span class="chip">Windows</span><span class="chip">开源免费</span>
+    </div>
+    <img class="abs" id="intro-fish" src="../ui/assets/characters/bluefish/happy.png" style="left:1380px;top:430px;width:480px;height:480px">
+  </section>
+
+  <!-- 3. setup -->
+  <section class="scene bg-desk" id="s-setup">
+    <div class="menubar"><div class="left"><span></span><span>访达</span><span>文件</span><span>编辑</span></div><div class="right"><span class="amt" id="setup-mb">¥0.00</span><span>周三 10:30</span></div></div>
+    <img class="abs" id="setup-shot" src="../docs/screenshots/settings.png" style="left:150px;top:90px;height:930px;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.35)">
+    <div class="abs" id="setup-chips" style="left:780px;top:190px;display:flex;flex-direction:column;gap:30px">
+      <span class="chip">💰 月薪</span><span class="chip">⏰ 上下班时间</span><span class="chip">🍚 午休</span>
+    </div>
+    <div class="pet" id="setup-pet" style="left:1340px;top:330px"></div>
+  </section>
+
+  <!-- 4. reminders -->
+  <section class="scene bg-desk" id="s-reminders">
+    <div class="menubar"><div class="left"><span></span><span>访达</span><span>文件</span><span>编辑</span></div><div class="right"><span class="amt">¥459.77</span><span id="rem-clock">周三 09:00</span></div></div>
+    <div class="pet" id="rem-1" style="left:160px;top:250px"></div>
+    <div class="pet" id="rem-2" style="left:830px;top:250px"></div>
+    <div class="pet" id="rem-3" style="left:1500px;top:250px"></div>
+    <div class="abs chip" id="rem-t1" style="left:225px;top:760px">09:00 上班</div>
+    <div class="abs chip" id="rem-t2" style="left:895px;top:760px">11:55 午休前</div>
+    <div class="abs chip" id="rem-t3" style="left:1565px;top:760px">18:00 下班</div>
+  </section>
+
+  <!-- 5. goal -->
+  <section class="scene bg-day" id="s-goal">
+    <div class="abs title" id="goal-title" style="left:120px;top:230px;font-size:96px;color:var(--blue)">今日目标</div>
+    <div class="abs" id="goal-target" style="left:126px;top:370px;font-size:150px;font-weight:900;color:#e0a21b">¥100</div>
+    <div class="abs" style="left:126px;top:580px;width:620px;height:44px;border-radius:22px;border:5px solid var(--navy);background:#fff;overflow:hidden">
+      <i id="goal-bar" style="display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd45c,#ffb238)"></i></div>
+    <div class="pet" id="goal-pet" style="left:1050px;top:160px"></div>
+    <div id="goal-confetti"></div>
+  </section>
+
+  <!-- 6. boss -->
+  <section class="scene bg-desk" id="s-boss">
+    <div class="menubar"><div class="left"><span></span><span>访达</span><span>文件</span><span>编辑</span></div><div class="right"><span class="amt" id="boss-mb">¥298.92</span><span>周三 15:12</span></div></div>
+    <div class="abs title" id="boss-title" style="left:140px;top:300px;font-size:110px;color:#fff;-webkit-text-stroke:12px var(--navy);paint-order:stroke fill">老板来了？</div>
+    <div class="abs" id="boss-sub" style="left:146px;top:470px;font-size:52px;font-weight:900;color:#fff;-webkit-text-stroke:8px var(--navy);paint-order:stroke fill">一键隐藏金额 🙈</div>
+    <div class="pet" id="boss-pet" style="left:1150px;top:180px"></div>
+    <div class="menu" id="boss-menu" style="left:1500px;top:520px">
+      <div>设置…</div><div>切换角色 ▸</div><div class="hl">隐藏金额（老板来了）</div><div>查看详情</div><div class="sep"></div><div>检查更新</div><div>退出</div>
+    </div>
+  </section>
+
+  <!-- 7. characters -->
+  <section class="scene bg-day" id="s-characters">
+    <div class="abs title" style="left:0;right:0;top:110px;text-align:center;font-size:86px;color:var(--blue)">五个角色 随便换</div>
+    <div class="abs" id="chars-row" style="left:90px;right:90px;top:270px;display:flex;gap:28px;justify-content:center"></div>
+  </section>
+
+  <!-- 8. platforms -->
+  <section class="scene bg-day" id="s-platforms">
+    <div class="abs card" id="plat-mac" style="left:230px;top:190px;width:680px;height:470px;padding:50px">
+      <div style="font-size:92px">💻</div><div class="title" style="font-size:80px;margin:6px 0 14px">macOS</div>
+      <div style="font-size:36px;font-weight:700;color:#5d6a8f;line-height:1.6">Apple 芯片 + Intel<br>已签名公证 · 约 11 MB</div></div>
+    <div class="abs card" id="plat-win" style="left:1010px;top:190px;width:680px;height:470px;padding:50px">
+      <div style="font-size:92px">🪟</div><div class="title" style="font-size:80px;margin:6px 0 14px">Windows</div>
+      <div style="font-size:36px;font-weight:700;color:#5d6a8f;line-height:1.6">Windows 10 / 11<br>安装包约 4 MB</div></div>
+    <div class="abs chip" id="plat-upd" style="left:0;right:0;margin:auto;top:730px;width:420px;text-align:center;font-size:40px">🔄 自动更新</div>
+  </section>
+
+  <!-- 9. cta -->
+  <section class="scene bg-night" id="s-cta">
+    <img class="abs" id="cta-show" src="../docs/screenshots/showcase.png" style="left:160px;top:90px;width:1600px;border-radius:36px;box-shadow:0 30px 80px rgba(0,0,0,.5)">
+    <div class="abs title" id="cta-url" style="left:0;right:0;top:680px;text-align:center;font-size:76px;color:#fff">salarykitten.pages.dev</div>
+    <div class="abs" id="cta-gh" style="left:0;right:0;top:790px;text-align:center;font-size:36px;font-weight:800;color:#a6b3d9">开源免费 · github.com/dollarkillerx/SalaryKitten</div>
+    <div class="abs" id="cta-3" style="left:0;right:0;top:860px;text-align:center;font-size:44px;font-weight:900;color:#ffd45c"></div>
+  </section>
+
+  <div id="wm"><img src="../assets/logo.png">薪水小猫</div>
+  <div id="subs"></div>
+</div>
+
+<script>
+const CH = {
+  bluefish:   { name: '蓝色大肥鱼', line: '#1b2c66', main: '#2b4fa8', soft: '#eaf2ff' },
+  winterfish: { name: '冬装大肥鱼', line: '#1b2c66', main: '#3b5bb5', soft: '#eef5ff' },
+  claude:     { name: 'Claude娘',  line: '#5a2a12', main: '#d4682a', soft: '#fff3e6' },
+  fishclaude: { name: '冒牌 Claude', line: '#1b2c66', main: '#d4682a', soft: '#fff4e8' },
+  gpt:        { name: 'GPT娘',     line: '#3d3566', main: '#7b6cc9', soft: '#f3f0ff' },
+};
+const SPR = (c, s) => `../ui/assets/characters/${c}/${s}.png`;
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const back = (x) => { x = clamp(x); const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const p = (lt, at, len = 0.45) => clamp((lt - at) / len);
+const money = (v, d = 2) => '¥' + v.toFixed(d);
+const rand = (i) => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+
+// ---------- 桌宠组件 ----------
+function pet(el, c) {
+  const th = CH[c];
+  el.style.setProperty('--line', th.line); el.style.setProperty('--main', th.main); el.style.setProperty('--soft', th.soft);
+  el.innerHTML = `<div class="bubble"></div><img class="sprite"><div class="counter"><div class="lab"><i></i><span></span></div><div class="amt"></div><div class="bar"><i></i></div></div>`;
+  const q = (s) => el.querySelector(s);
+  return {
+    el, c,
+    set({ sprite, bubble, bubbleK = 1, label = '今日已赚', amount = '', bar = 0.3, scale = 1, bob = 0, spriteScale = 1 }) {
+      const img = q('img.sprite'); const src = SPR(this.c, sprite);
+      if (!img.src.endsWith(src.replace('..', ''))) img.src = src;
+      img.style.transform = `translateY(${-bob}px) scale(${spriteScale})`;
+      const b = q('.bubble');
+      b.style.display = bubble ? 'block' : 'none';
+      if (bubble) { b.textContent = bubble; b.style.transform = `scale(${bubbleK})`; b.style.opacity = clamp(bubbleK * 1.5); }
+      q('.lab span').textContent = label; q('.amt').textContent = amount; q('.bar i').style.width = (bar * 100) + '%';
+      el.style.transform = `scale(${scale})`;
+    },
+  };
+}
+
+// ---------- 场景 ----------
+const S = {};
+S.hook = { init() { $('hook-coins').innerHTML = Array.from({ length: 16 }, (_, i) => `<div class="coin" id="hc${i}">¥</div>`).join(''); },
+  draw(lt, d) {
+    $('hook-q').style.transform = `scale(${back(p(lt, 0.1, 0.5))})`;
+    $('hook-amt').textContent = money(lt * lt * 18 + lt * 3.3);
+    $('hook-amt').style.opacity = ease(p(lt, 0.4));
+    for (let i = 0; i < 16; i++) {
+      const sp = 140 + rand(i) * 160, x = rand(i + 50) * 1860, y = ((lt * sp + rand(i + 9) * 1300) % 1300) - 150;
+      const c = $('hc' + i); c.style.left = x + 'px'; c.style.top = y + 'px'; c.style.opacity = 0.55; c.style.transform = `rotate(${lt * 90 + i * 30}deg) scale(${0.6 + rand(i + 3) * 0.6})`;
+    }
+  } };
+S.intro = { draw(lt, d) {
+    $('intro-logo').style.transform = `scale(${back(p(lt, 0, 0.5))}) rotate(${(1 - ease(p(lt, 0, 0.6))) * -20}deg)`;
+    $('intro-title').style.opacity = ease(p(lt, 0.25)); $('intro-title').style.transform = `translateX(${(1 - ease(p(lt, 0.25, 0.5))) * 60}px)`;
+    $('intro-sub').style.opacity = ease(p(lt, 0.6));
+    $('intro-tags').style.opacity = ease(p(lt, 1.0)); $('intro-tags').style.transform = `translateY(${(1 - ease(p(lt, 1.0))) * 30}px)`;
+    $('intro-fish').style.transform = `translateX(${(1 - ease(p(lt, 0.8, 0.6))) * 700}px) translateY(${-Math.abs(Math.sin(lt * 5)) * 18}px)`;
+  } };
+S.setup = { init() { this.pet = pet($('setup-pet'), 'bluefish'); },
+  draw(lt, d) {
+    $('setup-shot').style.transform = `translateY(${(1 - ease(p(lt, 0, 0.6))) * 900}px)`;
+    [...$('setup-chips').children].forEach((c, i) => { const k = p(lt, 0.7 + i * 0.6, 0.4); c.style.transform = `scale(${back(k)})`; c.style.opacity = clamp(k * 2); });
+    const amt = 128.4 + Math.max(0, lt - 1.2) * 9.73;
+    this.pet.set({ sprite: 'working', amount: money(amt), bar: clamp(amt / 400), scale: 1.65 * ease(p(lt, 0.3, 0.5)), bob: Math.abs(Math.sin(lt * 3)) * 4,
+      bubble: lt > d * 0.55 ? '今天已经赚了 ' + money(amt) + ' 啦！' : '', bubbleK: back(p(lt, d * 0.55, 0.35)) });
+    $('setup-mb').textContent = money(amt);
+  } };
+S.reminders = { init() { this.p = [pet($('rem-1'), 'bluefish'), pet($('rem-2'), 'winterfish'), pet($('rem-3'), 'claude')]; },
+  draw(lt, d) {
+    const at = [0.2, d * 0.32, d * 0.62];
+    const data = [
+      { sprite: 'hello', bubble: '上班啦~ 今天也辛苦了，欧鲸鲸！', amount: '¥0.00', label: '今日已赚', bar: 0 },
+      { sprite: 'hungry', bubble: '还有 5 分钟就午休啦，饭饭！欧鲸鲸~', amount: '¥172.41', label: '今日已赚', bar: 0.43 },
+      { sprite: 'bye', bubble: '下班啦！今天辛苦了~ 一共赚了 ¥459.77，值得一杯好茶。', amount: '¥459.77', label: '已下班 · 今日共赚', bar: 1 },
+    ];
+    this.p.forEach((pp, i) => {
+      const k = p(lt, at[i], 0.45);
+      pp.set({ ...data[i], scale: 1.6 * back(k), bubbleK: back(p(lt, at[i] + 0.35, 0.35)), bob: Math.abs(Math.sin(lt * 3 + i)) * 4 });
+      $('rem-t' + (i + 1)).style.opacity = clamp(k * 2); $('rem-t' + (i + 1)).style.transform = `translateY(${(1 - ease(k)) * 40}px)`;
+    });
+    $('rem-clock').textContent = lt < at[1] ? '周三 09:00' : lt < at[2] ? '周三 11:55' : '周三 18:00';
+  } };
+S.goal = { init() { this.pet = pet($('goal-pet'), 'bluefish');
+    $('goal-confetti').innerHTML = Array.from({ length: 70 }, (_, i) => `<div class="confetti" id="cf${i}" style="background:${['#ff7aa8', '#ffd45c', '#6fa8ff', '#7be0b0', '#b9adf0'][i % 5]}"></div>`).join(''); },
+  draw(lt, d) {
+    const hit = d * 0.42;
+    const amt = Math.min(100, 96.2 + lt * (3.8 / hit));
+    const done = lt >= hit;
+    $('goal-bar').style.width = clamp(amt / 100) * 100 + '%';
+    $('goal-target').style.transform = `scale(${done ? 1 + 0.12 * Math.sin(clamp((lt - hit) / 0.4) * Math.PI) : 1})`;
+    this.pet.set({ sprite: done ? 'celebrate' : 'working', amount: money(amt), bar: amt / 100, scale: 1.9 * ease(p(lt, 0, 0.4)),
+      bubble: done ? '你赚到 ¥100.00 啦！欧鲸鲸鲸鲸！🎉' : '', bubbleK: back(p(lt, hit, 0.35)), bob: done ? Math.abs(Math.sin(lt * 8)) * 20 : 0 });
+    for (let i = 0; i < 70; i++) {
+      const c = $('cf' + i), tt = lt - hit;
+      if (tt < 0) { c.style.opacity = 0; continue; }
+      const ang = rand(i) * Math.PI * 2, v = 500 + rand(i + 7) * 700;
+      const x = 1300 + Math.cos(ang) * v * tt, y = 420 + Math.sin(ang) * v * tt * 0.7 + 600 * tt * tt;
+      c.style.opacity = clamp(1.6 - tt * 0.5); c.style.left = x + 'px'; c.style.top = y + 'px'; c.style.transform = `rotate(${tt * 700 * (rand(i + 2) - 0.5)}deg)`;
+    }
+  } };
+S.boss = { init() { this.pet = pet($('boss-pet'), 'bluefish'); },
+  draw(lt, d) {
+    const menuAt = 0.5, hideAt = d * 0.42;
+    const hidden = lt >= hideAt;
+    $('boss-title').style.transform = `scale(${back(p(lt, 0, 0.45))})`;
+    $('boss-sub').style.opacity = ease(p(lt, 0.5));
+    const m = $('boss-menu');
+    m.style.opacity = lt >= menuAt && !hidden ? 1 : 0; m.style.transform = `scale(${lt >= menuAt ? 0.9 + 0.1 * ease(p(lt, menuAt, 0.2)) : 0.9})`;
+    this.pet.set({ sprite: hidden ? 'idle' : 'working', amount: hidden ? '¥***.**' : '¥298.92', bar: 0.75, scale: 1.75,
+      bubble: hidden ? '嘘~ 金额藏起来了，欧鲸鲸' : '', bubbleK: back(p(lt, hideAt, 0.35)) });
+    $('boss-mb').textContent = hidden ? '¥***.**' : '¥298.92';
+  } };
+S.characters = { init(scene) {
+    const ids = ['bluefish', 'winterfish', 'claude', 'fishclaude', 'gpt'];
+    $('chars-row').innerHTML = ids.map((c) => `<div class="card" id="cc-${c}" style="width:320px;padding:18px 10px 24px;text-align:center;border-color:${CH[c].line};box-shadow:0 10px 0 ${CH[c].line}">
+      <img src="${SPR(c, 'idle')}" style="width:280px;height:280px;object-fit:contain"><div class="title" style="font-size:40px;color:${CH[c].main}">${CH[c].name}</div></div>`).join('');
+    // 名字在台词里出现的位置 → 高亮时间
+    const names = ['蓝色大肥鱼', '冬装大肥鱼', 'Claude娘', '冒牌Claude', 'GPT娘'];
+    this.marks = names.map((n) => Math.max(0, scene.text.indexOf(n)) / scene.text.length);
+    this.ids = ids;
+  },
+  draw(lt, d, scene) {
+    this.ids.forEach((c, i) => {
+      const el = $('cc-' + c), k = p(lt, i * 0.12, 0.4);
+      const on = lt >= this.marks[i] * scene.voice && (i === 4 || lt < this.marks[i + 1] * scene.voice);
+      el.style.opacity = clamp(k * 2);
+      el.style.transform = `translateY(${(1 - ease(k)) * 80 - (on ? 30 : 0)}px) scale(${on ? 1.1 : 1})`;
+      el.querySelector('img').src = SPR(c, on ? 'happy' : 'idle');
+    });
+  } };
+S.platforms = { draw(lt) {
+    $('plat-mac').style.transform = `translateY(${(1 - ease(p(lt, 0.1, 0.5))) * 700}px)`;
+    $('plat-win').style.transform = `translateY(${(1 - ease(p(lt, 0.45, 0.5))) * 700}px)`;
+    $('plat-upd').style.transform = `scale(${back(p(lt, 1.4, 0.45))})`;
+  } };
+S.cta = { draw(lt) {
+    $('cta-show').style.transform = `scale(${0.92 + 0.08 * ease(p(lt, 0, 0.8))})`; $('cta-show').style.opacity = ease(p(lt, 0, 0.5));
+    $('cta-url').style.transform = `scale(${back(p(lt, 0.5, 0.45))})`;
+    $('cta-gh').style.opacity = ease(p(lt, 1.0));
+    const pulse = (i) => 1 + 0.18 * Math.max(0, Math.sin((lt - 2 - i * 0.25) * 5));
+    $('cta-3').innerHTML = ['👍 点赞', '🪙 投币', '⭐ 收藏'].map((t, i) => `<span style="display:inline-block;margin:0 34px;transform:scale(${lt > 2 ? pulse(i) : back(p(lt, 1.4 + i * 0.15, 0.4))})">${t}</span>`).join('');
+  } };
+
+// ---------- 时间线 ----------
+let TL = null;
+window.setup = (timeline) => {
+  TL = timeline;
+  TL.scenes.forEach((s) => S[s.id].init && S[s.id].init(s));
+};
+// 字幕：按标点切成短句，按字数分配到这一句的配音时长里
+function subsAt(scene, lt) {
+  const parts = scene.text.match(/[^，。！？：、,!?]+[，。！？：、,!?]?/g) || [scene.text];
+  const total = parts.reduce((n, s) => n + s.length, 0);
+  let acc = 0;
+  for (const s of parts) { acc += s.length; if (lt <= (acc / total) * scene.voice) return s.replace(/[，。、,]$/, ''); }
+  return parts[parts.length - 1].replace(/[，。、,]$/, '');
+}
+window.seek = (t) => {
+  const FADE = 0.3;
+  for (const s of TL.scenes) {
+    const el = $('s-' + s.id), lt = t - s.start;
+    const on = lt >= -FADE && lt < s.dur + FADE;
+    if (!on) { el.style.opacity = 0; continue; }
+    el.style.opacity = clamp((lt + FADE) / FADE) * clamp((s.dur + FADE - lt) / FADE);
+    S[s.id].draw(Math.max(0, lt), s.dur, s);
+  }
+  const cur = TL.scenes.find((s) => t >= s.start && t < s.start + s.dur) || TL.scenes[TL.scenes.length - 1];
+  const lt = t - cur.start;
+  $('subs').textContent = lt <= cur.voice + 0.15 ? subsAt(cur, lt) : '';
+  $('wm').style.opacity = cur.id === 'intro' || cur.id === 'hook' ? 0 : 1;
+};
+</script>
+</body>
+</html>
