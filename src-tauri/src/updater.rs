@@ -77,6 +77,9 @@ pub async fn update_check(app: AppHandle, background: bool) -> Result<(), String
         let _ = app.emit("update-state", s.clone());
     }
     let result = run(&app).await;
+    if let Err(e) = &result {
+        eprintln!("[updater] check failed (background={background}): {e}");
+    }
     if let Err(e) = result {
         set(&app, |s| {
             if background {
@@ -91,13 +94,21 @@ pub async fn update_check(app: AppHandle, background: bool) -> Result<(), String
 }
 
 async fn run(app: &AppHandle) -> Result<(), String> {
-    let updater = app.updater().map_err(|e| e.to_string())?;
+    // 超时覆盖整个下载（约 11 MB），给慢网络留足时间；不设的话网络卡住时会永远挂起
+    let updater = app
+        .updater_builder()
+        .timeout(std::time::Duration::from_secs(300))
+        .build()
+        .map_err(|e| e.to_string())?;
+    eprintln!("[updater] checking for updates (current {})", app.package_info().version);
     let Some(update) = updater.check().await.map_err(|e| e.to_string())? else {
+        eprintln!("[updater] up to date");
         set(app, |s| s.phase = Phase::UpToDate);
         return Ok(());
     };
     let version = update.version.clone();
     let notes = update.body.clone();
+    eprintln!("[updater] found {version}, downloading");
     set(app, |s| {
         s.phase = Phase::Downloading;
         s.version = Some(version.clone());
@@ -125,6 +136,7 @@ async fn run(app: &AppHandle) -> Result<(), String> {
         .await
         .map_err(|e| e.to_string())?;
 
+    eprintln!("[updater] downloaded {} bytes", bytes.len());
     *app.state::<Updater>().pending.lock().unwrap() = Some((update, bytes));
     set(app, |s| {
         s.phase = Phase::Ready;
