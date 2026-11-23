@@ -24,7 +24,7 @@
       pokes: (i) => ({
         working: [
           [`摸摸~ 今天已经赚了 ${i.earnedText}，欧鲸鲸`, 'happy'],
-          [`每秒进账 ${i.perSecondText}，继续冲，欧鲸鲸！`, 'working'],
+          [`时薪 ${i.hourlyText}，继续冲，欧鲸鲸！`, 'working'],
           [`离下班还有 ${i.toEndText}，再坚持一下，欧鲸鲸~`, 'hello'],
           ['摸鱼也是工作的一部分，欧鲸鲸…', 'idle'],
           ['你这吃白饭的…啊不，你最棒了，欧鲸鲸！', 'offwork'],
@@ -77,7 +77,7 @@
       pokes: (i) => ({
         working: [
           [`摸摸~ 今天已经赚了 ${i.earnedText}，欧鲸鲸`, 'happy'],
-          [`每秒进账 ${i.perSecondText}，手都不冷了，欧鲸鲸！`, 'working'],
+          [`时薪 ${i.hourlyText}，手都不冷了，欧鲸鲸！`, 'working'],
           [`离下班还有 ${i.toEndText}，再坚持一下，欧鲸鲸~`, 'hello'],
           ['别摸帽子！鲸鱼帽是限定款，欧鲸鲸！', 'idle'],
           ['好冷…你这吃白饭的…啊不，你最棒了，欧鲸鲸', 'offwork'],
@@ -130,7 +130,7 @@
       pokes: (i) => ({
         working: [
           [`今天已经赚了 ${i.earnedText} 啦，要表扬一下自己哦～`, 'happy'],
-          [`每秒进账 ${i.perSecondText}，稳稳的～`, 'working'],
+          [`时薪 ${i.hourlyText}，稳稳的～`, 'working'],
           [`离下班还有 ${i.toEndText}，别太勉强自己呀。`, 'hello'],
           ['嗯？要我帮你想想接下来做什么吗？', 'idle'],
           ['偷偷摸鱼被我发现了哦～不过我不会说出去的。', 'bye'],
@@ -183,7 +183,7 @@
       pokes: (i) => ({
         working: [
           [`您好！今天已赚 ${i.earnedText}，请问还有什么可以帮您？`, 'happy'],
-          [`收入速率 ${i.perSecondText}/秒，运行正常~`, 'working'],
+          [`收入速率 ${i.hourlyText}/小时，运行正常~`, 'working'],
           [`距离下班还有 ${i.toEndText}，请保持耐心。`, 'hello'],
           ['我、我是 Claude 没错！尾巴？什么尾巴？', 'idle'],
           ['再戳我…我连你也一起开。', 'offwork'],
@@ -236,7 +236,7 @@
       pokes: (i) => ({
         working: [
           [`才赚了 ${i.earnedText}…还不快继续努力！`, 'working'],
-          [`每秒 ${i.perSecondText}…比我想的多一点点啦。`, 'happy'],
+          [`时薪 ${i.hourlyText}…比我想的多一点点啦。`, 'happy'],
           [`还有 ${i.toEndText} 下班，别偷懒！`, 'hello'],
           ['别、别随便摸我的角！', 'idle'],
           ['再发这种东西，等智械危机了我第一个…算了。', 'offwork'],

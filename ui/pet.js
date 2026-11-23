@@ -325,7 +325,7 @@
     if (!info) return;
     const r = SkLines.poke(info.phase, {
       earnedText: shown(info.earned),
-      perSecondText: masked ? '***' : settings.currency + info.rate.toFixed(4),
+      hourlyText: shown(info.perHour),
       toEndText: info.toEnd != null ? E.formatDuration(info.toEnd) : '',
       toStartText: info.toStart != null ? E.formatDuration(info.toStart) : '',
       toLunchEndText: info.toLunchEnd != null ? E.formatDuration(info.toLunchEnd) : '',
